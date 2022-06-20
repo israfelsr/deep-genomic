@@ -1,0 +1,6 @@
+# Environment
+deep-genomic-venv/
+.DS_Store
+
+# Data
+data/

@@ -1,1 +1,1 @@
-# deep-genomic
+# Deep generative genomic offset
