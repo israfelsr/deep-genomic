@@ -1,6 +1,7 @@
 # Environment
 deep-genomic-venv/
 .DS_Store
+__pycache__/
 
 # Data
 data/
