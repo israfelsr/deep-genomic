@@ -29,10 +29,10 @@ def load_conditions(conditions: List[str], data_dir):
 def load_data(inputs: str,
               conditions: List[str],
               data_dir,
-              is_conditional,
+              use_conditions,
               qtls=False):
     x = drop_unnamed(pd.read_csv(os.path.join(data_dir, inputs))).to_numpy()
-    if is_conditional:
+    if use_conditions:
         c = load_conditions(conditions, data_dir)
     if qtls:
         m2 = drop_unnamed(pd.read_csv(os.path.join(
@@ -41,8 +41,11 @@ def load_data(inputs: str,
             data_dir, "mutationm3.csv"))).to_numpy().squeeze()
         idx = np.concatenate((m2, m3))
         x = x.T[idx].T
-    assert len(x) == len(c)
-    return x, c
+    if use_conditions:
+        assert len(x) == len(c)
+        return x, c
+    else:
+        return x, None
 
 
 class GenomicEnvironmentalDataset(Dataset):
@@ -59,6 +62,9 @@ class GenomicEnvironmentalDataset(Dataset):
 
     def __getitem__(self, idx):
         x = self.x[idx]
-        c = self.c[idx]
-        return (torch.tensor(x, dtype=torch.float),
-                torch.tensor(c, dtype=torch.float))
+        if self.c is not None:
+            c = self.c[idx]
+            return (torch.tensor(x, dtype=torch.float),
+                    torch.tensor(c, dtype=torch.float))
+        else:
+            return torch.tensor(x, dtype=torch.float)

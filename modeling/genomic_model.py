@@ -20,9 +20,8 @@ def init_weights(m):
         m.bias.data.fill_(0.01)
 
 
-class ModelType(str, enum.Enum):
-    VAE = 'vae'
-    CVAE = 'cvae'
+class Models(str, enum.Enum):
+    SIMPLE_VAE = 'simple_vae'
 
     def __str__(self):
         return self.value
@@ -38,6 +37,7 @@ class GenomicModelConfig:
     z_dim: int
     conditional: bool
     c_embedded: int
+    model: Models
 
     def as_dict(self):
         return dataclasses.asdict(self)

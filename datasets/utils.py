@@ -40,13 +40,17 @@ def normalization(c):
     return c_std
 
 
-def split_dataset(x, c, test_percentage=0.2):
+def split_dataset(x, c, use_conditions=True, test_percentage=0.2):
     n = x.shape[0]
     idx = np.random.randint(0, n, int(n * test_percentage))
     mask = np.full(n, False, dtype=bool)
     mask[idx] = True
     x_test = x[mask]
     x_train = x[~mask]
-    c_test = c[mask]
-    c_train = c[~mask]
+    if use_conditions:
+        c_test = c[mask]
+        c_train = c[~mask]
+    else:
+        c_test = None
+        c_train = None
     return x_test, x_train, c_test, c_train
