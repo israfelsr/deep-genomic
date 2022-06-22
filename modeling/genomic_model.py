@@ -38,6 +38,7 @@ class GenomicModelConfig:
     conditional: bool
     c_embedded: int
     model: Models
+    use_context: bool
 
     def as_dict(self):
         return dataclasses.asdict(self)

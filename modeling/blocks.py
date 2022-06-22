@@ -65,8 +65,22 @@ class Decoder(nn.Module):
         if self.conditional:
             z = torch.cat((z, c), dim=1)
             h = self.architecture(z)
+            #h = h + torch.mean(c, axis=1).unsqueeze(dim=1)
         else:
             h = self.architecture(z)
         h = self.last_linear(h)
         x_hat = self.sigmoid(h)
         return x_hat
+
+
+class ConditionContext(nn.Module):
+
+    def __init__(self, config: GenomicModelConfig):
+        super().__init__()
+        self.fc1 = nn.Linear(config.c_dim, 128)
+        self.fc2 = nn.Linear(128, config.c_embedded)
+
+    def forward(self, c):
+        h = F.relu(self.fc1(c))
+        h = self.fc2(h)
+        return h

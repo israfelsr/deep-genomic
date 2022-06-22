@@ -162,8 +162,11 @@ def main():
     x_dim = x.shape[1]
     c_dim = c.shape[1]
 
+    use_context = True if args.c_embedded else False
     if args.c_embedded is None:
         args.c_embedded = c_dim
+    if use_context:
+        assert args.is_conditional
 
     x_val, x_train, c_val, c_train = split_dataset(x, c)
 
@@ -189,7 +192,8 @@ def main():
                                 c_embedded=args.c_embedded,
                                 encoder_dims=args.encoder_dims,
                                 decoder_dims=args.decoder_dims,
-                                model=args.model)
+                                model=args.model,
+                                use_context=use_context)
 
     model = build_model(config)
     model.apply(init_weights)

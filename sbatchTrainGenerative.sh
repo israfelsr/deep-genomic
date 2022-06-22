@@ -5,6 +5,7 @@ python train/train_generative.py\
     --c_norm\
     --num_classes=1\
     --z_dim=6\
+    --c_embedded=64\
     --model=simple_vae\
     --is_conditional\
     --do_haploidization\
@@ -14,4 +15,4 @@ python train/train_generative.py\
     --do_eval\
     --do_encode\
     --compute_r2\
-    --wandb_run_name=simple_cvae\
+    --wandb_run_name=cvae+

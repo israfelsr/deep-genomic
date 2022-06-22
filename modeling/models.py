@@ -18,14 +18,20 @@ class SimpleVariationalModel(GenomicModel):
         super().__init__(config)
         self.encoder = Encoder(config)
         self.decoder = Decoder(config)
+        if config.use_context:
+            self.context = ConditionContext(config)
 
     def forward(self, x, c=None):
+        if self.config.use_context:
+            c = self.context(c)
         mu, logvar = self.encoder(x, c)
         z = reparametrize(mu, logvar)
         x_hat = self.decoder(z, c)
         return {'x_hat': x_hat, 'x': x, 'mu': mu, 'logvar': logvar}
 
     def generate(self, c=None):
+        if self.config.use_context:
+            c = self.context(c)
         num_samples = c.shape[0] if c is not None else 64
         with torch.no_grad():
             z = torch.randn(num_samples, self.config.z_dim)
