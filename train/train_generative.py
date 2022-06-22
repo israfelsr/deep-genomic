@@ -213,7 +213,7 @@ def main():
 
     generator = Generator(model, args.condition_files, args.data_dir)
     if args.do_encode:
-        mu, var = generator.encode(x)
+        mu, var = generator.encode(x, use_context)
         if has_wandb and args.use_wandb:
             LOG.info(f'Saving latent space in wandb')
             columns = []

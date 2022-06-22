@@ -6,13 +6,13 @@ python train/train_generative.py\
     --num_classes=1\
     --z_dim=6\
     --c_embedded=64\
-    --model=simple_vae\
+    --model=prior_vae\
     --is_conditional\
     --do_haploidization\
     --batch_size=75\
-    --criterion=bce_elbo\
+    --criterion=priorbce_elbo\
     --num_epochs=10\
     --do_eval\
     --do_encode\
     --compute_r2\
-    --wandb_run_name=cvae+
+    --wandb_run_name=pcvae

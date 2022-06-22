@@ -84,3 +84,20 @@ class ConditionContext(nn.Module):
         h = F.relu(self.fc1(c))
         h = self.fc2(h)
         return h
+
+
+class Prior(nn.Module):
+
+    def __init__(self, config: GenomicModelConfig):
+        super().__init__()
+        self.fc1 = nn.Linear(config.c_embedded, 128)
+        self.fc2 = nn.Linear(128, 128)
+        self.linear_mu = nn.Linear(128, config.z_dim)
+        self.linear_logvar = nn.Linear(128, config.z_dim)
+
+    def forward(self, c):
+        h = F.relu(self.fc1(c))
+        h = F.relu(self.fc2(h))
+        mu = self.linear_mu(h)
+        logvar = self.linear_logvar(h)
+        return mu, logvar

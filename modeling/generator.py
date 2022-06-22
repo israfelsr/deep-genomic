@@ -60,11 +60,15 @@ class Generator:
             pd.read_csv(os.path.join(data_dir,
                                      "pop.csv"))).to_numpy().squeeze()
 
-    def encode(self, x):
+    def encode(self, x, use_context):
         self.model.eval()
         with torch.no_grad():
+            if use_context:
+                c = self.model.context(self.c_current)
+            else:
+                c = self.c_current
             mu, logvar = self.model.encoder(torch.tensor(x, dtype=torch.float),
-                                            self.c_current)
+                                            c)
             var = torch.exp(logvar)
         return np.asarray(mu), np.asarray(var)
 

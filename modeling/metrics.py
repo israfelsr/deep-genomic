@@ -68,12 +68,13 @@ def bce_elbo_loss(outputs):
     return recon_loss + kl_loss
 
 
-def bce_prior_loss(x_hat, x, mu, logvar, prior_mu, prior_logvar):
-    elbo = bce_elbo_loss(x_hat, x, mu, logvar)
+def bce_prior_loss(outputs):
+    elbo = bce_elbo_loss(outputs)
     q = torch.distributions.MultivariateNormal(
-        mu, torch.diag_embed(torch.exp(logvar * 0.5)))
+        outputs['mu'], torch.diag_embed(torch.exp(outputs['logvar'] * 0.5)))
     p = torch.distributions.MultivariateNormal(
-        prior_mu, torch.diag_embed(torch.exp(prior_logvar * 0.5)))
+        outputs['prior_mu'],
+        torch.diag_embed(torch.exp(outputs['prior_logvar'] * 0.5)))
     prior_kl = torch.sum(torch.distributions.kl_divergence(q, p))
     return elbo + prior_kl
 

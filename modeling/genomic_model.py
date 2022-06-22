@@ -22,6 +22,7 @@ def init_weights(m):
 
 class Models(str, enum.Enum):
     SIMPLE_VAE = 'simple_vae'
+    PRIOR_VAE = 'prior_vae'
 
     def __str__(self):
         return self.value
