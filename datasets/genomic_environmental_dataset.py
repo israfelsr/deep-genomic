@@ -11,11 +11,12 @@ from utils.logging import get_logger
 LOG = get_logger(__name__)
 
 
-def load_conditions(conditions: List[str], data_dir):
+def load_conditions(conditions: List[str], data_dir, norm=False):
     if len(conditions) == 1:
         c = drop_unnamed(pd.read_csv(os.path.join(data_dir,
                                                   conditions[0]))).to_numpy()
-        #c = normalization(c)
+        if norm:
+            c = normalization(c)
     else:
         c = []
         for file in conditions:
@@ -26,9 +27,13 @@ def load_conditions(conditions: List[str], data_dir):
     return c
 
 
-def load_data(inputs: str, conditions: List[str], data_dir, qtls=False):
+def load_data(inputs: str,
+              conditions: List[str],
+              data_dir,
+              qtls=False,
+              c_norm=False):
     x = drop_unnamed(pd.read_csv(os.path.join(data_dir, inputs))).to_numpy()
-    c = load_conditions(conditions, data_dir)
+    c = load_conditions(conditions, data_dir, c_norm)
     if qtls:
         m2 = drop_unnamed(pd.read_csv(os.path.join(
             data_dir, "mutationm2.csv"))).to_numpy().squeeze()

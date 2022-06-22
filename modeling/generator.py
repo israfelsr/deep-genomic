@@ -37,14 +37,18 @@ def get_c_future_files(c_current: List[str], data_dir):
 
 class Generator:
 
-    def __init__(self, model: GenomicModel, c_current_files: List[str],
-                 data_dir: str):
-        self.model = model
+    def __init__(self,
+                 model: GenomicModel,
+                 c_current_files: List[str],
+                 data_dir: str,
+                 c_norm=False):
+        self.model = model.to('cpu')
         self.c_current = torch.tensor(load_conditions(c_current_files,
-                                                      data_dir),
+                                                      data_dir, c_norm),
                                       dtype=torch.float)
         c_future_files = get_c_future_files(c_current_files, data_dir)
-        self.c_future = torch.tensor(load_conditions(c_future_files, data_dir),
+        self.c_future = torch.tensor(load_conditions(c_future_files, data_dir,
+                                                     c_norm),
                                      dtype=torch.float)
         self.fitness_current = drop_unnamed(
             pd.read_csv(os.path.join(data_dir,
@@ -59,9 +63,10 @@ class Generator:
     def encode(self, x):
         self.model.eval()
         with torch.no_grad():
-            mu, logvar = self.model.encoder(torch.tensor(x), self.c_current)
+            mu, logvar = self.model.encoder(torch.tensor(x, dtype=torch.float),
+                                            self.c_current)
             var = torch.exp(logvar)
-        return np.asarray(mu), np.asarray(var), np.asarray(self.c_current)
+        return np.asarray(mu), np.asarray(var)
 
     def generate_from_conditions(self):
         gen_current = np.asarray(self.model.generate(self.c_current))

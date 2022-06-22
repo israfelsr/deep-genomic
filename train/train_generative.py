@@ -55,6 +55,9 @@ def main():
                         nargs="*",
                         type=str,
                         default=["var_current.csv", "pop.csv"])
+    parser.add_argument("--c_norm",
+                        action="store_true",
+                        help="If passed, will normalize the conditions")
     # Model Parameters
     parser.add_argument("--num_classes",
                         type=int,
@@ -153,7 +156,8 @@ def main():
         raise ValueError("No conditions have been passed")
 
     LOG.info(f'Loading genomic data from: {args.data_dir}')
-    x, c = load_data("genome.csv", args.condition_files, args.data_dir)
+    x, c = load_data("genome.csv", args.condition_files, args.data_dir,
+                     args.c_norm)
 
     x_dim = x.shape[1]
     c_dim = c.shape[1]
@@ -205,13 +209,13 @@ def main():
 
     generator = Generator(model, args.condition_files, args.data_dir)
     if args.do_encode:
-        mu, var, c = generator.encode(x)
+        mu, var = generator.encode(x)
         if has_wandb and args.use_wandb:
             LOG.info(f'Saving latent space in wandb')
             columns = []
             columns += [f"mu_{i}" for i in range(args.z_dim)]
             columns += [f"var_{i}" for i in range(args.z_dim)]
-            columns += [f"c_{i}" for i in range(args.c_dim)]
+            columns += [f"c_{i}" for i in range(c_dim)]
             data = np.concatenate((mu, var, c), axis=1)
             table = wandb.Table(columns=columns, data=data)
             wandb.log({
