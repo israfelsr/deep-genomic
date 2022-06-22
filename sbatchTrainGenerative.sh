@@ -9,3 +9,6 @@ python train/train_generative.py\
     --do_haploidization\
     --batch_size=8\
     --criterion="bce_elbo"\
+    --do_eval\
+    --do_encode\
+    --compute_r2\

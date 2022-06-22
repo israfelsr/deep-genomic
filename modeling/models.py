@@ -20,10 +20,10 @@ class SimpleVariationalModel(GenomicModel):
         self.decoder = Decoder(config)
 
     def forward(self, x, c=None):
-        mu, logvar = self.enconder(x, c)
+        mu, logvar = self.encoder(x, c)
         z = reparametrize(mu, logvar)
         x_hat = self.decoder(z, c)
-        return {'x_hat': x_hat, 'mu': mu, 'logvar': logvar}
+        return {'x_hat': x_hat, 'x': x, 'mu': mu, 'logvar': logvar}
 
     def generate(self, c=None):
         num_samples = c.shape[0] if c is not None else 64

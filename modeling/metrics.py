@@ -17,14 +17,11 @@ class GenomicGenerationMetrics:
         self.prefix = prefix
 
     #TODO: make the loss with variable parameters
-    def update(self, output, labels, mu, logvar, prior_mu, prior_logvar,
-               loss_function):
+    def update(self, outputs, loss_function):
         for name, metric in self.metrics.items():
-            metric.update(output, labels.long())
-        samples = labels.shape[0]
-        self.running_loss.update(
-            loss_function(output, labels, mu, logvar, prior_mu, prior_logvar) /
-            samples)
+            metric.update(outputs['x_hat'], outputs['x'].long())
+        samples = outputs['x'].shape[0]
+        self.running_loss.update(loss_function(outputs) / samples)
         self.examples_count += samples
 
     def compute_and_reset(self):
@@ -62,9 +59,12 @@ def mse_elbo_loss(x_hat, x, mu, logvar):
     return recon_loss + kl_loss
 
 
-def bce_elbo_loss(x_hat, x, mu, logvar):
-    recon_loss = F.binary_cross_entropy(x_hat, x, reduction='sum')
-    kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+def bce_elbo_loss(outputs):
+    recon_loss = F.binary_cross_entropy(outputs['x_hat'],
+                                        outputs['x'],
+                                        reduction='sum')
+    kl_loss = -0.5 * torch.sum(1 + outputs['logvar'] - outputs['mu'].pow(2) -
+                               outputs['logvar'].exp())
     return recon_loss + kl_loss
 
 
