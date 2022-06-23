@@ -89,11 +89,11 @@ class GenomicGeneratorTrainer:
                     1):
                 self.optimizer.zero_grad()
                 outputs = self.model(inputs, conditions)
-                loss = self.criterion(outputs)
+                loss = self.criterion(outputs, inputs)
                 self.accelerator.backward(loss)
                 self.optimizer.step()
                 self.lr_scheduler.step()
-                self.metrics.update(outputs, self.criterion)
+                self.metrics.update(outputs, inputs, self.criterion)
                 self.training_steps += 1
             evaluation_metrics = {}
             if (self.training_args.do_eval
@@ -120,5 +120,5 @@ class GenomicGeneratorTrainer:
 
             with torch.no_grad():
                 outputs = self.model(inputs, conditions)
-            self.val_metrics.update(outputs, self.criterion)
+            self.val_metrics.update(outputs, inputs, self.criterion)
         return self.val_metrics.compute_and_reset()

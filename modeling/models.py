@@ -30,7 +30,7 @@ class SimpleVariationalModel(GenomicModel):
         mu, logvar = self.encoder(x, c)
         z = reparametrize(mu, logvar)
         x_hat = self.decoder(z, c)
-        return {'x_hat': x_hat, 'x': x, 'mu': mu, 'logvar': logvar}
+        return {'x_hat': x_hat, 'mu': mu, 'logvar': logvar}
 
     def generate(self, c=None):
         if self.config.use_context:
@@ -57,11 +57,10 @@ class StudentTeacherModel(GenomicModel):
             c = self.context(c)
         mu, logvar = self.encoder(x, c)
         prior_mu, prior_logvar = self.prior(c)
-        z = reparametrize(mu, logvar)
+        z = reparametrize(prior_mu, prior_logvar)
         x_hat = self.decoder(z, c)
         return {
             'x_hat': x_hat,
-            'x': x,
             'mu': mu,
             'logvar': logvar,
             'prior_mu': prior_mu,

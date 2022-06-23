@@ -10,7 +10,7 @@ python train/train_generative.py\
     --is_conditional\
     --do_haploidization\
     --batch_size=75\
-    --criterion=priorbce_elbo\
+    --criterion=elbo_prior\
     --num_epochs=10\
     --do_eval\
     --do_encode\

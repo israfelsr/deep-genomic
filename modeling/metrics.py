@@ -17,11 +17,11 @@ class GenomicGenerationMetrics:
         self.prefix = prefix
 
     #TODO: make the loss with variable parameters
-    def update(self, outputs, loss_function):
+    def update(self, outputs, x, loss_function):
         for name, metric in self.metrics.items():
-            metric.update(outputs['x_hat'], outputs['x'].long())
-        samples = outputs['x'].shape[0]
-        self.running_loss.update(loss_function(outputs) / samples)
+            metric.update(outputs['x_hat'], x.long())
+        samples = x.shape[0]
+        self.running_loss.update(loss_function(outputs, x) / samples)
         self.examples_count += samples
 
     def compute_and_reset(self):
@@ -59,17 +59,15 @@ def mse_elbo_loss(x_hat, x, mu, logvar):
     return recon_loss + kl_loss
 
 
-def bce_elbo_loss(outputs):
-    recon_loss = F.binary_cross_entropy(outputs['x_hat'],
-                                        outputs['x'],
-                                        reduction='sum')
+def bce_elbo_loss(outputs, x):
+    recon_loss = F.binary_cross_entropy(outputs['x_hat'], x, reduction='sum')
     kl_loss = -0.5 * torch.sum(1 + outputs['logvar'] - outputs['mu'].pow(2) -
                                outputs['logvar'].exp())
     return recon_loss + kl_loss
 
 
-def bce_prior_loss(outputs):
-    elbo = bce_elbo_loss(outputs)
+def bce_prior_loss(outputs, x):
+    elbo = bce_elbo_loss(outputs, x)
     q = torch.distributions.MultivariateNormal(
         outputs['mu'], torch.diag_embed(torch.exp(outputs['logvar'] * 0.5)))
     p = torch.distributions.MultivariateNormal(
@@ -77,6 +75,17 @@ def bce_prior_loss(outputs):
         torch.diag_embed(torch.exp(outputs['prior_logvar'] * 0.5)))
     prior_kl = torch.sum(torch.distributions.kl_divergence(q, p))
     return elbo + prior_kl
+
+
+def elbo_prior_loss(outputs, x):
+    recon_loss = F.binary_cross_entropy(outputs['x_hat'], x, reduction='sum')
+    kl_loss = torch.sum(
+        -0.5 + outputs['prior_logvar'] - outputs['logvar'] +
+        torch.divide(torch.square(torch.exp(outputs['logvar'])), 2 *
+                     torch.square(torch.exp(outputs['prior_logvar']))) +
+        torch.divide(torch.square(outputs['mu'] - outputs['prior_mu']), 2 *
+                     torch.square(torch.exp(outputs['prior_logvar']))))
+    return recon_loss + kl_loss
 
 
 def regression_elbo_loss(x_hat, x, mu, logvar, prior_mu, prior_logvar, c,
@@ -96,5 +105,6 @@ CRITERION = {
     "ce_elbo": ce_elbo_loss,
     "mse_elbo": mse_elbo_loss,
     "bce_elbo": bce_elbo_loss,
+    "elbo_prior": elbo_prior_loss,
     "priorbce_elbo": bce_prior_loss
 }
