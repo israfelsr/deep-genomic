@@ -47,6 +47,17 @@ class GenomicGenerationMetrics:
         }
 
 
+def kl_loss(mu_q, logvar_q, mu_p=None, logvar_p=None):
+    if mu_p is None and logvar_p is None:
+        mu_p = torch.zeros_like(mu_q)
+        logvar_p = torch.zeros_like(logvar_q)
+    return torch.sum(-0.5 + logvar_p - logvar_q +
+                     torch.divide(torch.square(torch.exp(logvar_q)), 2 *
+                                  torch.square(torch.exp(logvar_p))) +
+                     torch.divide(torch.square(mu_q - mu_p), 2 *
+                                  torch.square(torch.exp(logvar_p))))
+
+
 def ce_elbo_loss(x_hat, x, mu, logvar):
     recon_loss = F.cross_entropy(x_hat, x.long(), reduction='sum') / x.shape[0]
     kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
@@ -79,13 +90,10 @@ def bce_prior_loss(outputs, x):
 
 def elbo_prior_loss(outputs, x):
     recon_loss = F.binary_cross_entropy(outputs['x_hat'], x, reduction='sum')
-    kl_loss = torch.sum(
-        -0.5 + outputs['prior_logvar'] - outputs['logvar'] +
-        torch.divide(torch.square(torch.exp(outputs['logvar'])), 2 *
-                     torch.square(torch.exp(outputs['prior_logvar']))) +
-        torch.divide(torch.square(outputs['mu'] - outputs['prior_mu']), 2 *
-                     torch.square(torch.exp(outputs['prior_logvar']))))
-    return recon_loss + kl_loss
+    encoders_kl_loss = kl_loss(outputs['mu'], outputs['logvar'],
+                               outputs['prior_mu'], outputs['prior_logvar'])
+    gaussian_kl_loss = kl_loss(outputs['prior_mu'], outputs['prior_logvar'])
+    return recon_loss + encoders_kl_loss + gaussian_kl_loss
 
 
 def regression_elbo_loss(x_hat, x, mu, logvar, prior_mu, prior_logvar, c,
