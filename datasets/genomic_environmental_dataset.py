@@ -30,8 +30,8 @@ def load_conditions(conditions: List[str], data_dir, norm=False):
 def load_data(inputs: str,
               conditions: List[str],
               data_dir,
-              qtls=False,
-              c_norm=False):
+              c_norm=False,
+              qtls=False):
     x = drop_unnamed(pd.read_csv(os.path.join(data_dir, inputs))).to_numpy()
     c = load_conditions(conditions, data_dir, c_norm)
     if qtls:

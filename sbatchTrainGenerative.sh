@@ -15,4 +15,4 @@ python train/train_generative.py\
     --do_eval\
     --do_encode\
     --compute_r2\
-    --wandb_run_name=pcvae
+    --wandb_run_name=pcontextvae++

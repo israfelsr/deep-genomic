@@ -161,6 +161,7 @@ def main():
 
     x_dim = x.shape[1]
     c_dim = c.shape[1]
+    LOG.info(f"Working with x_dim = {x_dim}")
 
     use_context = True if args.c_embedded else False
     if args.c_embedded is None:
@@ -235,14 +236,26 @@ def main():
 
     if args.compute_r2:
         r2, offset, fitness_offset, predicted_fitness = generator.compute_r2()
+        r2q, offsetq, fitness_offsetq, predicted_fitnessq = generator.compute_r2(
+            qtls=True)
         if has_wandb and args.use_wandb:
-            offset = np.expand_dims(offset, axis=1)
             data = np.concatenate((offset, fitness_offset, predicted_fitness),
                                   axis=1)
             table = wandb.Table(
                 columns=["offset", "fitness_offset", "predicted_fitness"],
                 data=data)
-            wandb.log({"r2": r2, "genomic_offset": table})
+            dataq = np.concatenate(
+                (offsetq, fitness_offsetq, predicted_fitnessq), axis=1)
+            tableq = wandb.Table(columns=[
+                "offset_qts", "fitness_offset_qts", "predicted_fitness_qts"
+            ],
+                                 data=dataq)
+            wandb.log({
+                "r2": r2,
+                "r2_qtls": r2q,
+                "genomic_offset": table,
+                "qtls_offset": tableq
+            })
         else:
             LOG.warning('The R2 value was computed no data has been saved')
 

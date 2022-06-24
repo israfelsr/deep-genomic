@@ -14,7 +14,10 @@ from utils.logging import get_logger
 LOG = get_logger(__name__)
 
 
-def compute_genomic_offset(x_reconstructed, x_generated):
+def compute_genomic_offset(x_reconstructed, x_generated, qtls=None):
+    if qtls is not None:
+        x_reconstructed = x_reconstructed.T[qtls].T
+        x_generated = x_generated.T[qtls].T
     n_loci = x_reconstructed.shape[1]
     return np.sum(np.square(x_generated - x_reconstructed), axis=1) / n_loci
 
@@ -59,6 +62,11 @@ class Generator:
         self.population = drop_unnamed(
             pd.read_csv(os.path.join(data_dir,
                                      "pop.csv"))).to_numpy().squeeze()
+        m2 = drop_unnamed(pd.read_csv(os.path.join(
+            data_dir, "mutationm2.csv"))).to_numpy().squeeze()
+        m3 = drop_unnamed(pd.read_csv(os.path.join(
+            data_dir, "mutationm3.csv"))).to_numpy().squeeze()
+        self.qtls = np.concatenate((m2, m3))
 
     def encode(self, x, use_context):
         self.model.eval()
@@ -79,15 +87,21 @@ class Generator:
         gen_future = filter_by(gen_future, self.population)
         return gen_current, gen_future
 
-    def compute_r2(self):
+    def compute_r2(self, qtls=False):
         x_reconstructed, x_generated = self.generate_from_conditions()
-        genomic_offset = compute_genomic_offset(x_reconstructed, x_generated)
+        if qtls:
+            genomic_offset = compute_genomic_offset(x_reconstructed,
+                                                    x_generated, self.qtls)
+        else:
+            genomic_offset = compute_genomic_offset(x_reconstructed,
+                                                    x_generated)
         fitness_offset = compute_fitness_offset(self.fitness_current,
                                                 self.fitness_future)
         fitness_offset = filter_by(fitness_offset, self.population)
         linear_model = LinearRegression().fit(genomic_offset.reshape(-1, 1),
                                               fitness_offset)
         r2 = linear_model.score(genomic_offset.reshape(-1, 1), fitness_offset)
-        LOG.info(f"R2 cvae: {r2}")
+        LOG.info(f"R2: {r2}")
         predicted_fitness = linear_model.predict(genomic_offset.reshape(-1, 1))
-        return r2, genomic_offset, fitness_offset, predicted_fitness
+        return r2, np.expand_dims(genomic_offset,
+                                  axis=1), fitness_offset, predicted_fitness
