@@ -51,11 +51,19 @@ def kl_loss(mu_q, logvar_q, mu_p=None, logvar_p=None):
     if mu_p is None and logvar_p is None:
         mu_p = torch.zeros_like(mu_q)
         logvar_p = torch.ones_like(logvar_q)
+    loss = (1 + logvar_q - logvar_p -
+            torch.divide(torch.square(mu_q - mu_p), torch.exp(logvar_p)) -
+            torch.divide(torch.exp(logvar_q), torch.exp(logvar_p)))
+    return torch.sum(-0.5 * torch.sum(loss, axis=-1))
+
+
+'''
     return torch.sum(-0.5 + logvar_p - logvar_q +
                      torch.divide(torch.square(torch.exp(logvar_q)), 2 *
                                   torch.square(torch.exp(logvar_p))) +
                      torch.divide(torch.square(mu_q - mu_p), 2 *
                                   torch.square(torch.exp(logvar_p))))
+'''
 
 
 def ce_elbo_loss(x_hat, x, mu, logvar):
@@ -92,6 +100,7 @@ def elbo_prior_loss(outputs, x):
     recon_loss = F.binary_cross_entropy(outputs['x_hat'], x, reduction='sum')
     encoders_kl_loss = kl_loss(outputs['mu'], outputs['logvar'],
                                outputs['prior_mu'], outputs['prior_logvar'])
+    print(encoders_kl_loss)
     #gaussian_kl_loss = kl_loss(outputs['mu'], outputs['logvar'])
     return recon_loss + encoders_kl_loss  #+ gaussian_kl_loss
 
