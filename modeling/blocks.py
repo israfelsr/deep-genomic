@@ -69,8 +69,8 @@ class Decoder(nn.Module):
         else:
             h = self.architecture(z)
         h = self.last_linear(h)
-        x_hat = self.sigmoid(h)
-        return x_hat
+        #x_hat = self.sigmoid(h)
+        return h
 
 
 class ConditionContext(nn.Module):
