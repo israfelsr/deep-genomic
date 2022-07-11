@@ -38,6 +38,10 @@ def get_c_future_files(c_current: List[str], data_dir):
     return c_future
 
 
+def norm_genome(genome):
+    return genome / np.max(genome, axis=1, keepdims=True)
+
+
 class Generator:
 
     def __init__(self,
