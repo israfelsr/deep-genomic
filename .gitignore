@@ -4,5 +4,4 @@ deep-genomic-venv/
 __pycache__/
 
 # Data
-data/
 experiment_outputs/
