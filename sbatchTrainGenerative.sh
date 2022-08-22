@@ -4,8 +4,6 @@ python train/train_generative.py\
     --output_dir=/Users/israfelsalazar/Documents/deep-genomic.nosync/deep-genomic/experiment_outputs\
     --condition_files var_current.csv\
     --c_norm\
-    --is_conditional\
-    --num_classes=1\
     --z_dim=2\
     --model=simple_vae\
     --do_haploidization\

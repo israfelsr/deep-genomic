@@ -62,6 +62,7 @@ def main():
     parser.add_argument("--num_classes",
                         type=int,
                         required=True,
+                        default=1,
                         help="Possible number of classes in locus")
     parser.add_argument("--z_dim",
                         required=True,
@@ -144,7 +145,7 @@ def main():
 
     if args.use_wandb:
         if has_wandb:
-            wandb.init(project="genomic-experiments",
+            wandb.init(project="genomic-results",
                        name=args.wandb_run_name,
                        config=args)
 
@@ -152,7 +153,8 @@ def main():
         if not args.is_conditional:
             LOG.warning(
                 "Conditions were passed but the model is not conditioned")
-        LOG.info(f'Using conditions from {args.condition_files}')
+        else:
+            LOG.info(f'Using conditions from {args.condition_files}')
     else:
         raise ValueError("No conditions have been passed")
 
@@ -171,7 +173,8 @@ def main():
         assert args.is_conditional
 
     x_val, x_train, c_val, c_train = split_dataset(x, c)
-
+    LOG.info(f"Train dataset size: {len(x_train)}")
+    LOG.info(f"Validation dataset size: {len(x_val)}")
     train_dataset = GenomicEnvironmentalDataset(x_train, c_train,
                                                 args.do_haploidization)
     val_dataset = GenomicEnvironmentalDataset(x_val, c_val,
@@ -213,6 +216,7 @@ def main():
     if args.output_dir:
         model.save(output_folder)
         LOG.info("Model Saved")
+    """
 
     generator = Generator(model, args.condition_files, args.data_dir)
     if args.do_encode:
@@ -261,6 +265,6 @@ def main():
         else:
             LOG.warning('The R2 value was computed no data has been saved')
 
-
+    """
 if __name__ == '__main__':
     main()

@@ -42,7 +42,8 @@ def normalization(c):
 
 def split_dataset(x, c, test_percentage=0.2):
     n = x.shape[0]
-    idx = np.random.randint(0, n, int(n * test_percentage))
+    len_test_split = int(n * test_percentage)
+    idx = np.random.choice(range(n), size=(len_test_split,), replace=False)
     mask = np.full(n, False, dtype=bool)
     mask[idx] = True
     x_test = x[mask]
