@@ -23,6 +23,7 @@ def init_weights(m):
 class Models(str, enum.Enum):
     SIMPLE_VAE = 'simple_vae'
     PRIOR_VAE = 'prior_vae'
+    AUTOENCODER = 'autoencoder'
 
     def __str__(self):
         return self.value

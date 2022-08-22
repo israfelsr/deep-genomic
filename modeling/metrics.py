@@ -57,12 +57,12 @@ def kl_loss(mu_q, logvar_q, mu_p=None, logvar_p=None):
     return torch.sum(-0.5 * torch.sum(loss, axis=-1))
 
 
-def mse_reconstruction(x, x_hat):
-    return F.mse_loss(x_hat, x)
+def mse_reconstruction(outputs, x):
+    return F.mse_loss(outputs['x_hat'], x)
 
 
-def bce_reconstruction(x_hat, x):
-    return F.binary_cross_entropy_with_logits(x_hat, x)
+def bce_reconstruction(outputs, x):
+    return F.binary_cross_entropy_with_logits(outputs['x_hat'], x)
 
 
 def ce_elbo_loss(x_hat, x, mu, logvar):
@@ -71,14 +71,17 @@ def ce_elbo_loss(x_hat, x, mu, logvar):
     return recon_loss + kl_loss
 
 
-def mse_elbo_loss(x_hat, x, mu, logvar):
-    recon_loss = F.mse_loss(x_hat, x)
-    kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+def mse_elbo_loss(outputs, x):
+    recon_loss = F.mse_loss(outputs['x_hat'], x)
+    kl_loss = -0.5 * torch.sum(1 + outputs['logvar'] - outputs['mu'].pow(2) -
+                               outputs['logvar'].exp())
     return recon_loss + kl_loss
 
 
 def bce_elbo_loss(outputs, x):
-    recon_loss = F.binary_cross_entropy(outputs['x_hat'], x, reduction='sum')
+    recon_loss = F.binary_cross_entropy_with_logits(outputs['x_hat'],
+                                                    x,
+                                                    reduction='sum')
     kl_loss = -0.5 * torch.sum(1 + outputs['logvar'] - outputs['mu'].pow(2) -
                                outputs['logvar'].exp())
     return recon_loss + kl_loss
@@ -96,9 +99,9 @@ def bce_prior_loss(outputs, x):
 
 
 def elbo_prior_loss(outputs, x):
-    #recon_loss = F.binary_cross_entropy(outputs['x_hat'], x, reduction='sum')
-    recon_loss = bce_reconstruction(outputs['x_hat'], x)
-    #recon_loss = mse_reconstruction(outputs['x_hat'], x)
+    #recon_loss = F.binary_cross_entropy(outputs['x_hat'], x)
+    recon_loss = F.binary_cross_entropy_with_logits(outputs['x_hat'], x)
+    #recon_loss = F.mse_loss(outputs['x_hat'], x)
     encoders_kl_loss = kl_loss(outputs['mu'], outputs['logvar'],
                                outputs['prior_mu'], outputs['prior_logvar'])
     #gaussian_kl_loss = kl_loss(outputs['mu'], outputs['logvar'])
@@ -119,6 +122,8 @@ def regression_elbo_loss(x_hat, x, mu, logvar, prior_mu, prior_logvar, c,
 
 
 CRITERION = {
+    "mse": mse_reconstruction,
+    "bce": bce_reconstruction,
     "ce_elbo": ce_elbo_loss,
     "mse_elbo": mse_elbo_loss,
     "bce_elbo": bce_elbo_loss,

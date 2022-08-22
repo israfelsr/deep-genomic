@@ -1,18 +1,16 @@
 export PYTHONPATH=$(pwd)
 python train/train_generative.py\
     --data_dir=/Users/israfelsalazar/Documents/deep-genomic.nosync/deep-genomic/data/sim1\
+    --output_dir=/Users/israfelsalazar/Documents/deep-genomic.nosync/deep-genomic/experiment_outputs\
     --condition_files var_current.csv\
     --c_norm\
-    --num_classes=1\
-    --z_dim=6\
-    --c_embedded=64\
-    --model=prior_vae\
     --is_conditional\
+    --num_classes=1\
+    --z_dim=2\
+    --model=simple_vae\
     --do_haploidization\
     --batch_size=75\
-    --criterion=elbo_prior\
-    --num_epochs=10\
+    --criterion=bce_elbo\
+    --num_epochs=100\
     --do_eval\
-    --do_encode\
-    --compute_r2\
-    --wandb_run_name=pcontextvae++
+    --wandb_run_name=vanilla_vae

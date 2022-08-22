@@ -1,3 +1,4 @@
+from email.generator import DecodedGenerator
 from modeling.blocks import *
 from modeling.genomic_model import GenomicModel, GenomicModelConfig, Models
 from utils.logging import get_logger
@@ -12,7 +13,25 @@ def build_model(config: GenomicModelConfig):
     if config.model == Models.PRIOR_VAE:
         assert config.conditional
         model = StudentTeacherModel(config)
+    if config.model == Models.AUTOENCODER:
+        model = Autoencoder(config)
     return model
+
+
+class Autoencoder(GenomicModel):
+
+    def __init__(self, config: GenomicModelConfig):
+        super().__init__(config)
+        self.encoder = Encoder(config)
+        self.decoder = Decoder(config)
+
+    def forward(self, x, c=None):
+        z, logvar = self.encoder(x, c)
+        x_hat = self.decoder(z, c)
+        return {'x_hat': x_hat}
+
+    def generate(self, c=None):
+        pass
 
 
 class SimpleVariationalModel(GenomicModel):

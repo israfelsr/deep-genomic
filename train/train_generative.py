@@ -139,11 +139,12 @@ def main():
     set_seed(args.seed)
     if args.output_dir:
         output_folder = os.path.join(args.output_dir, args.wandb_run_name)
+        LOG.info(f"Experiment will be saved in {output_folder}")
         os.makedirs(output_folder, exist_ok=True)
 
     if args.use_wandb:
         if has_wandb:
-            wandb.init(project="genomic-generation",
+            wandb.init(project="genomic-experiments",
                        name=args.wandb_run_name,
                        config=args)
 
@@ -211,6 +212,7 @@ def main():
 
     if args.output_dir:
         model.save(output_folder)
+        LOG.info("Model Saved")
 
     generator = Generator(model, args.condition_files, args.data_dir)
     if args.do_encode:
