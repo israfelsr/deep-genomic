@@ -18,3 +18,12 @@ export PYTHONPATH=$(pwd)
 # Change parameters and hyperparameters in the .sh file
 sh sbatchTrainCVAE.sh
 ```
+
+## Available models
+This repository includes several implemented models and it's build to easily
+incorporate new models. The name of the already implemented models are shown below.
+```
+model = 'autoencoder'
+model = 'simple_vae'
+model = 'prior_vae'
+```

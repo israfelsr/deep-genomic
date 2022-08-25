@@ -29,7 +29,7 @@ def haploidization(x):
 def filter_by(array_to_filter, filter):
     filtered_array = []
     for i in np.unique(filter):
-        filtered = array_to_filter[filter == i]
+        filtered = np.take(array_to_filter, np.where(filter==i)[0], axis=0)
         filtered_array.append(np.sum(filtered, axis=0) / len(filtered))
     return np.asarray(filtered_array)
 

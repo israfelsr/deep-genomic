@@ -51,12 +51,13 @@ class SimpleVariationalModel(GenomicModel):
         x_hat = self.decoder(z, c)
         return {'x_hat': x_hat, 'mu': mu, 'logvar': logvar}
 
-    def generate(self, c=None):
+    def generate(self, z=None, c=None):
         if self.config.use_context:
             c = self.context(c)
         num_samples = c.shape[0] if c is not None else 64
         with torch.no_grad():
-            z = torch.randn(num_samples, self.config.z_dim)
+            if z is None:
+                z = torch.randn(num_samples, self.config.z_dim)
             x_hat = self.decoder(z, c)
         return x_hat
 

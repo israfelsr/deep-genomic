@@ -8,7 +8,7 @@ python train/train_generative.py\
     --model=simple_vae\
     --do_haploidization\
     --batch_size=75\
-    --criterion=bce_elbo\
+    --criterion=bce_reconstruction\
     --num_epochs=100\
     --do_eval\
     --wandb_run_name=vanilla_vae

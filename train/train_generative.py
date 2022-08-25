@@ -213,9 +213,13 @@ def main():
 
     trainer.train()
 
+    if args.use_wandb:
+        model.save(wandb.run.dir)
+        LOG.info(f"Model Saved into wandb")
+
     if args.output_dir:
         model.save(output_folder)
-        LOG.info("Model Saved")
+        LOG.info(f"Model Saved into {output_folder}")
     """
 
     generator = Generator(model, args.condition_files, args.data_dir)
