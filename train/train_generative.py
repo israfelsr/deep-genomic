@@ -245,8 +245,8 @@ def main():
             LOG.warning('The encode was done but no data has been saved')
 
     if args.compute_r2:
-        r2, offset, fitness_offset, predicted_fitness = generator.compute_r2()
-        r2q, offsetq, fitness_offsetq, predicted_fitnessq = generator.compute_r2(
+        r2, offset, fitness_offset, predicted_fitness, rec, gen = generator.compute_r2()
+        r2q, offsetq, fitness_offsetq, predicted_fitnessq, _, _ = generator.compute_r2(
             qtls=True)
         if has_wandb and args.use_wandb:
             data = np.concatenate((offset, fitness_offset, predicted_fitness),
@@ -264,8 +264,10 @@ def main():
                 "r2": r2,
                 "r2_qtls": r2q,
                 "genomic_offset": table,
-                "qtls_offset": tableq
+                "qtls_offset": tableq,
             })
+            np.save(os.path.join(wandb.run.dir, "rec"), rec)
+            np.save(os.path.join(wandb.run.dir, "gen"), gen)
         else:
             LOG.warning('The R2 value was computed no data has been saved')
 

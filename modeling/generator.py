@@ -108,4 +108,4 @@ class Generator:
         LOG.info(f"R2: {r2}")
         predicted_fitness = linear_model.predict(genomic_offset.reshape(-1, 1))
         return r2, np.expand_dims(genomic_offset,
-                                  axis=1), fitness_offset, predicted_fitness
+                                  axis=1), fitness_offset, predicted_fitness, x_reconstructed, x_generated
