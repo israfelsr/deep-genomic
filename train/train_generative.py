@@ -145,7 +145,7 @@ def main():
 
     if args.use_wandb:
         if has_wandb:
-            wandb.init(project="genomic-results",
+            wandb.init(project="deep-genomic",
                        name=args.wandb_run_name,
                        config=args)
 
@@ -220,7 +220,6 @@ def main():
     if args.output_dir:
         model.save(output_folder)
         LOG.info(f"Model Saved into {output_folder}")
-    """
 
     generator = Generator(model, args.condition_files, args.data_dir)
     if args.do_encode:
@@ -245,7 +244,8 @@ def main():
             LOG.warning('The encode was done but no data has been saved')
 
     if args.compute_r2:
-        r2, offset, fitness_offset, predicted_fitness, rec, gen = generator.compute_r2()
+        r2, offset, fitness_offset, predicted_fitness, rec, gen = generator.compute_r2(
+        )
         r2q, offsetq, fitness_offsetq, predicted_fitnessq, _, _ = generator.compute_r2(
             qtls=True)
         if has_wandb and args.use_wandb:
@@ -271,6 +271,6 @@ def main():
         else:
             LOG.warning('The R2 value was computed no data has been saved')
 
-    """
+
 if __name__ == '__main__':
     main()
