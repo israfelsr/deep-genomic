@@ -248,26 +248,29 @@ def main():
         )
         r2q, offsetq, fitness_offsetq, predicted_fitnessq, _, _ = generator.compute_r2(
             qtls=True)
+        if args.output_dir:
+            generator.offset_data.to_csv(args.output_dir)
         if has_wandb and args.use_wandb:
-            data = np.concatenate((offset, fitness_offset, predicted_fitness),
-                                  axis=1)
-            table = wandb.Table(
-                columns=["offset", "fitness_offset", "predicted_fitness"],
-                data=data)
-            dataq = np.concatenate(
-                (offsetq, fitness_offsetq, predicted_fitnessq), axis=1)
-            tableq = wandb.Table(columns=[
-                "offset_qts", "fitness_offset_qts", "predicted_fitness_qts"
-            ],
-                                 data=dataq)
+            generator.offset_data.to_csv(wandb.run.dir)
+            #    data = np.concatenate((offset, fitness_offset, predicted_fitness),
+            #                         axis=1)
+            #    table = wandb.Table(
+            #        columns=["offset", "fitness_offset", "predicted_fitness"],
+            #        data=data)
+            #    dataq = np.concatenate(
+            #        (offsetq, fitness_offsetq, predicted_fitnessq), axis=1)
+            #    tableq = wandb.Table(columns=[
+            #        "offset_qts", "fitness_offset_qts", "predicted_fitness_qts"
+            #    ],
+            #                         data=dataq)
             wandb.log({
                 "r2": r2,
                 "r2_qtls": r2q,
-                "genomic_offset": table,
-                "qtls_offset": tableq,
+                #        "genomic_offset": table,
+                #        "qtls_offset": tableq,
             })
-            np.save(os.path.join(wandb.run.dir, "rec"), rec)
-            np.save(os.path.join(wandb.run.dir, "gen"), gen)
+        #    np.save(os.path.join(wandb.run.dir, "rec"), rec)
+        #    np.save(os.path.join(wandb.run.dir, "gen"), gen)
         else:
             LOG.warning('The R2 value was computed no data has been saved')
 

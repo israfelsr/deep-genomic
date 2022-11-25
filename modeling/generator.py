@@ -93,19 +93,28 @@ class Generator:
 
     def compute_r2(self, qtls=False):
         x_reconstructed, x_generated = self.generate_from_conditions()
-        if qtls:
-            genomic_offset = compute_genomic_offset(x_reconstructed,
-                                                    x_generated, self.qtls)
-        else:
-            genomic_offset = compute_genomic_offset(x_reconstructed,
-                                                    x_generated)
+        genomic_offset_qtls = compute_genomic_offset(x_reconstructed,
+                                                     x_generated, self.qtls)
+        genomic_offset = compute_genomic_offset(x_reconstructed, x_generated)
         fitness_offset = compute_fitness_offset(self.fitness_current,
                                                 self.fitness_future)
         fitness_offset = filter_by(fitness_offset, self.population)
+        # Saving into df
+        self.offset_data = pd.DataFrame({
+            "fitness_offset":
+            fitness_offset,
+            "genoimc_offset":
+            genomic_offset,
+            "genomic_offset_qtls":
+            genomic_offset_qtls
+        })
+        if qtls:
+            genomic_offset = genomic_offset_qtls
         linear_model = LinearRegression().fit(genomic_offset.reshape(-1, 1),
                                               fitness_offset)
         r2 = linear_model.score(genomic_offset.reshape(-1, 1), fitness_offset)
         LOG.info(f"R2: {r2}")
         predicted_fitness = linear_model.predict(genomic_offset.reshape(-1, 1))
-        return r2, np.expand_dims(genomic_offset,
-                                  axis=1), fitness_offset, predicted_fitness, x_reconstructed, x_generated
+        return r2, np.expand_dims(
+            genomic_offset, axis=1
+        ), fitness_offset, predicted_fitness, x_reconstructed, x_generated
