@@ -102,8 +102,8 @@ class Generator:
         # Saving into df
         self.offset_data = pd.DataFrame({
             "fitness_offset":
-            fitness_offset,
-            "genoimc_offset":
+            fitness_offset.squeeze(),
+            "genomic_offset":
             genomic_offset,
             "genomic_offset_qtls":
             genomic_offset_qtls

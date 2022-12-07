@@ -249,9 +249,11 @@ def main():
         r2q, offsetq, fitness_offsetq, predicted_fitnessq, _, _ = generator.compute_r2(
             qtls=True)
         if args.output_dir:
-            generator.offset_data.to_csv(args.output_dir)
+            results_file = os.path.join(args.output_dir, "results.csv")
+            generator.offset_data.to_csv(results_file)
         if has_wandb and args.use_wandb:
-            generator.offset_data.to_csv(wandb.run.dir)
+            results_file = os.path.join(wandb.run.dir, "results.csv")
+            generator.offset_data.to_csv(results_file)
             #    data = np.concatenate((offset, fitness_offset, predicted_fitness),
             #                         axis=1)
             #    table = wandb.Table(
